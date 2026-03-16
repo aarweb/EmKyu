@@ -1,37 +1,20 @@
 import asyncio
 
-import pybotters
-from stores import BINANCE_WS, BYBIT_WS
-from trader import get_info_from_traders
+from broker.broker_client import BrokerClient
+from broker.bybit import BybitBroker
 
 
 async def main():
 
-    async with pybotters.Client() as client:
-        binance = pybotters.BinanceSpotDataStore()
-        bybit = pybotters.BybitDataStore()
+    brokers: list[BrokerClient] = [BybitBroker.create()]
 
-        await asyncio.gather(
-            client.ws_connect(BINANCE_WS, hdlr_json=binance.onmessage),
-            client.ws_connect(
-                BYBIT_WS,
-                send_json={
-                    "op": "subscribe",
-                    "args": [
-                        "publicTrade.BTCUSDT",
-                        "publicTrade.DOGEUSDT",
-                        "publicTrade.ETHUSDT",
-                        "publicTrade.SOLUSDT",
-                    ],
-                },
-                hdlr_json=bybit.onmessage,
-            ),
-        )
+    _ = await asyncio.gather(*[b.connect() for b in brokers])
 
-        for i in range(100):
-            await asyncio.gather(binance.wait(), bybit.wait())
-            info = get_info_from_traders(binance.trade, bybit.trade)
-            orderbooks = get_orderbook_from_broker(binance, bybit)
+    try:
+        while True:
+            _ = await asyncio.gather(*[b.onListen() for b in brokers])
+    except:
+        _ = await asyncio.gather(*[b.close() for b in brokers])
 
 
 asyncio.run(main())
