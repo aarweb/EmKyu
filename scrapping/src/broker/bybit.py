@@ -1,13 +1,15 @@
+import asyncio
 import json
 import stat
 from typing import override
 
-from websockets.asyncio.client import ClientConnection, connect
+from websockets.asyncio.client import connect
 
+from broker.mapper.bybit import BybitDataMapper
+from broker.mapper.model.time_series_cripto import TSData
 from env.bybit import BYBIT_WS
-from scrapping.src.broker.mapper.bybit import BybitDataMapper
 
-from .broker_client import BrokerClient
+from .client import BrokerClient
 
 
 class BybitBroker(BrokerClient):
@@ -36,10 +38,8 @@ class BybitBroker(BrokerClient):
 
     @override
     async def onListen(self):
-        data = await self.client.recv()
-        print(data)
-        response = BybitDataMapper.mapResponse(data)
-        response
+        data = json.loads(await self.client.recv())
+        mapped: TSData = BybitDataMapper.mapResponse(data)
 
     @override
     async def close(self):

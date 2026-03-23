@@ -1,7 +1,7 @@
 import asyncio
 
-from broker.broker_client import BrokerClient
 from broker.bybit import BybitBroker
+from broker.client import BrokerClient
 
 
 async def main():
@@ -13,7 +13,7 @@ async def main():
     try:
         while True:
             _ = await asyncio.gather(*[b.onListen() for b in brokers])
-    except:
+    except KeyboardInterrupt:
         _ = await asyncio.gather(*[b.close() for b in brokers])
 
 
