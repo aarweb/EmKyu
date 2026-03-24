@@ -1,0 +1,7 @@
+services:
+  scrapper:
+    dockerfile: ./scrapping/Dockerfile
+    container_name: scrapper
+    depends_on:
+      - apache-druni
+

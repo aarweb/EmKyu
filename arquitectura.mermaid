@@ -1,0 +1,83 @@
+graph TB
+    subgraph Clientes["🖥️ Clientes"]
+        C1["Cliente 1"]
+        C2["Cliente 2"]
+        C3["Cliente N..."]
+    end
+
+    subgraph Backend["⚙️ Backend — Python WebSocket Server"]
+        WS_SERVER["WebSocket Server"]
+        HANDLER["Request Handler"]
+        DRUID_CLIENT["Druid Query Client"]
+        WS_SERVER --> HANDLER --> DRUID_CLIENT
+    end
+
+    subgraph Scraper["🕷️ Scraper — WebSocket Service"]
+        SC_ENGINE["Scraping Engine"]
+        WS_CONN["WebSocket Connector"]
+        DATA_PARSER["Data Parser"]
+        SC_ENGINE --> DATA_PARSER --> WS_CONN
+    end
+
+    subgraph Kafka["📨 Apache Kafka"]
+        direction TB
+        TOPIC_TX["Topic: Transacciones"]
+        TOPIC_OB["Topic: OrderBook"]
+        TOPIC_MKT["Topic: Apertura/Cierre Mercado"]
+    end
+
+    subgraph Druid["🐉 Apache Druid"]
+        direction TB
+        INGESTION["Kafka Ingestion Supervisor"]
+        DATASOURCES["Datasources"]
+        
+        subgraph Datos["📊 Datasources"]
+            DS_TX["Transacciones"]
+            DS_OB["OrderBook"]
+            DS_MKT["Apertura / Cierre Mercado"]
+        end
+
+        subgraph Monedas["🪙 Monedas"]
+            ETH["Ethereum — ETH"]
+            BTC["Bitcoin — BTC"]
+            DOGE["DogeCoin — DOGE"]
+        end
+
+        INGESTION --> DATASOURCES
+        DATASOURCES --- Datos
+        Datos --- Monedas
+    end
+
+    subgraph ML["🧠 Procesamiento — FastAPI"]
+        API["FastAPI Server"]
+        TRAINING["Entrenamiento Red Neuronal"]
+        MODEL["Modelo Entrenado"]
+        API --> TRAINING --> MODEL
+    end
+
+    %% Conexiones principales
+    C1 & C2 & C3 <-->|"WebSocket"| WS_SERVER
+    DRUID_CLIENT -->|"Druid SQL / Native Query"| Druid
+    WS_CONN -->|"Produce mensajes"| Kafka
+    TOPIC_TX & TOPIC_OB & TOPIC_MKT -->|"Ingestion en tiempo real"| INGESTION
+    Druid -->|"Lectura de datos"| API
+
+    %% Estilos
+    classDef backendStyle fill:#4A90D9,stroke:#2C5F8A,color:#fff,rx:12,ry:12
+    classDef scraperStyle fill:#E07B3C,stroke:#A85A2A,color:#fff,rx:12,ry:12
+    classDef kafkaStyle fill:#333,stroke:#555,color:#fff,rx:12,ry:12
+    classDef druidStyle fill:#6B4C9A,stroke:#4A3470,color:#fff,rx:12,ry:12
+    classDef mlStyle fill:#2EAD6D,stroke:#1D7A4B,color:#fff,rx:12,ry:12
+    classDef clientStyle fill:#607D8B,stroke:#455A64,color:#fff,rx:12,ry:12
+    classDef topicStyle fill:#444,stroke:#666,color:#E8E8E8,rx:8,ry:8
+    classDef dsStyle fill:#8B6FB0,stroke:#6B4C9A,color:#fff,rx:8,ry:8
+    classDef coinStyle fill:#F5A623,stroke:#D4881E,color:#fff,rx:8,ry:8
+
+    class WS_SERVER,HANDLER,DRUID_CLIENT backendStyle
+    class SC_ENGINE,WS_CONN,DATA_PARSER scraperStyle
+    class TOPIC_TX,TOPIC_OB,TOPIC_MKT topicStyle
+    class INGESTION,DATASOURCES druidStyle
+    class DS_TX,DS_OB,DS_MKT dsStyle
+    class ETH,BTC,DOGE coinStyle
+    class API,TRAINING,MODEL mlStyle
+    class C1,C2,C3 clientStyle

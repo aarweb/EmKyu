@@ -13,7 +13,6 @@ from .client import BrokerClient
 
 
 class BybitBroker(BrokerClient):
-
     @staticmethod
     def create() -> BrokerClient:
         return BybitBroker(
@@ -40,6 +39,7 @@ class BybitBroker(BrokerClient):
     async def onListen(self):
         data = json.loads(await self.client.recv())
         mapped: TSData = BybitDataMapper.mapResponse(data)
+        print(mapped)
 
     @override
     async def close(self):
