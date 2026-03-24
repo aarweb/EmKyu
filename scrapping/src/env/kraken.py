@@ -1,1 +1,3 @@
-# TO-DO -> Variable de entorno siniestra
+from enviroment import environment
+
+KRAKEN_WS = environment["KRAKEN_WS"]
