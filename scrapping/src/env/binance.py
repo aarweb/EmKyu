@@ -1,1 +1,3 @@
-# TO-DO -> variable de entorno, probablemente siniestra también
+from enviroment import environment
+
+BINANCE_WS = environment["BINANCE_WS"]

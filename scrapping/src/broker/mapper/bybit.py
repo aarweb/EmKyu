@@ -1,4 +1,4 @@
-from broker.mapper.model.time_series_cripto import TSData
+from broker.mapper.model.time_series_cripto import Provider, TSData
 
 
 class BybitDataMapper:
@@ -9,4 +9,5 @@ class BybitDataMapper:
             name=data["data"][-1]["s"],
             price=data["data"][-1]["p"],
             volume=data["data"][-1]["v"],
+            provider=Provider.BYBIT,
         )
