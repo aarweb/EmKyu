@@ -11,11 +11,8 @@ from broker.mapper.model.time_series_cripto import TSData
 from env.kraken import KRAKEN_WS
 
 from .client import BrokerClient
-# <===============>
 
 
-# <=== CODE ===>
-# TODO: Quizás haga falta el SnapShot
 class KrakenBroker(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
@@ -47,6 +44,3 @@ class KrakenBroker(BrokerClient):
     @override
     async def close(self):
         await self.client.close()
-
-
-# <============>
