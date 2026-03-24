@@ -17,26 +17,20 @@ from .client import BrokerClient
 # <=== CODE ===>
 # TODO: Quizás haga falta el SnapShot
 class KrakenBroker(BrokerClient):
-
     @staticmethod
     def create() -> BrokerClient:
         return KrakenBroker(
-                KRAKEN_WS,
-                "KRAKEN",
-                args={
-                    "method": "subscribe",
-                    "params": {
-                        "channel": "ticker",
-                        "symbol": [
-                            "BTC/USD",
-                            "DOGE/USD",
-                            "ETH/USD",
-                            "SOL/USD"
-                        ]
-                    }
+            KRAKEN_WS,
+            "KRAKEN",
+            args={
+                "method": "subscribe",
+                "params": {
+                    "channel": "ticker",
+                    "symbol": ["BTC/USD", "DOGE/USD", "ETH/USD", "SOL/USD"],
                 },
+            },
         )
-    
+
     @override
     async def connect(self):
         self.client = await connect(self.url)
@@ -46,12 +40,13 @@ class KrakenBroker(BrokerClient):
     @override
     async def onListen(self):
         data = json.loads(await self.client.recv())
-        # print(data)
         if data.get("channel") == "ticker" and "data" in data:
-            # print(data)
             mapped: TSData = KrakenDataMapper.mapResponse(data)
-            print(mapped.name, mapped.volume)
+            print(mapped)
+
     @override
     async def close(self):
         await self.client.close()
+
+
 # <============>
