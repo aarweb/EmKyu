@@ -1,9 +1,6 @@
 import asyncio
 
-from trades.bybit import BybitBroker
-from trades.kraken import KrakenBroker
 from trades.client import BrokerClient
-from trades.binance import BinanceBroker
 from orderbook.binance import BinanceOrderBook
 from orderbook.bybit import BybitOrderBook
 from orderbook.kraken import KrakenOrderBook
@@ -12,9 +9,6 @@ from orderbook.kraken import KrakenOrderBook
 async def main():
 
     brokers: list[BrokerClient] = [
-        BybitBroker.create(),
-        BinanceBroker.create(),
-        KrakenBroker.create(),
         BybitOrderBook.create(),
         BinanceOrderBook.create(),
         KrakenOrderBook.create(),

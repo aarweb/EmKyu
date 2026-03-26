@@ -4,28 +4,27 @@ from typing import override
 import websockets
 from websockets.asyncio.client import connect
 
-from broker.mapper.binance import BinanceDataMapper
-from broker.mapper.model.time_series_cripto import TSData
+from trades.client import BrokerClient
 from env.binance import BINANCE_WS
+from orderbook.mapper.binance import BinanceOrderBookMapper
+from orderbook.mapper.model.order_book import TSOrderBook
 
-from .client import BrokerClient
 
-
-class BinanceBroker(BrokerClient):
+class BinanceOrderBook(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
-        return BinanceBroker(
+        return BinanceOrderBook(
             BINANCE_WS,
-            "BINANCE",
+            "BINANCE_ORDERBOOK",
             args={
                 "method": "SUBSCRIBE",
                 "params": [
-                    "btcusdt@trade",
-                    "dogeusdt@trade",
-                    "ethusdt@trade",
-                    "solusdt@trade",
+                    "btcusdt@depth20@100ms",
+                    "dogeusdt@depth20@100ms",
+                    "ethusdt@depth20@100ms",
+                    "solusdt@depth20@100ms",
                 ],
-                "id": 1,
+                "id": 2,
             },
         )
 
@@ -39,13 +38,14 @@ class BinanceBroker(BrokerClient):
     async def onListen(self):
         try:
             data = json.loads(await self.client.recv())
-            mapped: TSData = BinanceDataMapper.mapResponse(data)
-            print(mapped)
+            if "data" in data:
+                mapped: TSOrderBook = BinanceOrderBookMapper.mapResponse(data)
+                print(mapped)
         except websockets.exceptions.ConnectionClosed:
             await self.connect()
         except Exception as e:
             await self.close()
-            print(f"Error processing Binance data: {e}")
+            print(f"Error processing Binance OrderBook data: {e}")
 
     @override
     async def close(self):

@@ -1,29 +1,26 @@
-# <=== IMPORTS ===>
-import asyncio
 import json
-import stat
 from typing import override
 
 from websockets.asyncio.client import connect
 
-from broker.mapper.kraken import KrakenDataMapper
-from broker.mapper.model.time_series_cripto import TSData
+from trades.client import BrokerClient
 from env.kraken import KRAKEN_WS
+from orderbook.mapper.kraken import KrakenOrderBookMapper
+from orderbook.mapper.model.order_book import TSOrderBook
 
-from .client import BrokerClient
 
-
-class KrakenBroker(BrokerClient):
+class KrakenOrderBook(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
-        return KrakenBroker(
+        return KrakenOrderBook(
             KRAKEN_WS,
-            "KRAKEN",
+            "KRAKEN_ORDERBOOK",
             args={
                 "method": "subscribe",
                 "params": {
-                    "channel": "ticker",
+                    "channel": "book",
                     "symbol": ["BTC/USD", "DOGE/USD", "ETH/USD", "SOL/USD"],
+                    "depth": 25,
                 },
             },
         )
@@ -37,8 +34,8 @@ class KrakenBroker(BrokerClient):
     @override
     async def onListen(self):
         data = json.loads(await self.client.recv())
-        if data.get("channel") == "ticker" and "data" in data:
-            mapped: TSData = KrakenDataMapper.mapResponse(data)
+        if data.get("channel") == "book" and "data" in data:
+            mapped: TSOrderBook = KrakenOrderBookMapper.mapResponse(data)
             print(mapped)
 
     @override

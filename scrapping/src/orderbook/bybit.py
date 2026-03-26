@@ -1,30 +1,27 @@
-import asyncio
 import json
-import stat
 from typing import override
 
 from websockets.asyncio.client import connect
 
-from broker.mapper.bybit import BybitDataMapper
-from broker.mapper.model.time_series_cripto import TSData
+from trades.client import BrokerClient
 from env.bybit import BYBIT_WS
+from orderbook.mapper.bybit import BybitOrderBookMapper
+from orderbook.mapper.model.order_book import TSOrderBook
 
-from .client import BrokerClient
 
-
-class BybitBroker(BrokerClient):
+class BybitOrderBook(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
-        return BybitBroker(
+        return BybitOrderBook(
             BYBIT_WS,
-            "BYBIT",
+            "BYBIT_ORDERBOOK",
             args={
                 "op": "subscribe",
                 "args": [
-                    "publicTrade.BTCUSDT",
-                    "publicTrade.DOGEUSDT",
-                    "publicTrade.ETHUSDT",
-                    "publicTrade.SOLUSDT",
+                    "orderbook.50.BTCUSDT",
+                    "orderbook.50.DOGEUSDT",
+                    "orderbook.50.ETHUSDT",
+                    "orderbook.50.SOLUSDT",
                 ],
             },
         )
@@ -38,8 +35,9 @@ class BybitBroker(BrokerClient):
     @override
     async def onListen(self):
         data = json.loads(await self.client.recv())
-        mapped: TSData = BybitDataMapper.mapResponse(data)
-        print(mapped)
+        if "data" in data:
+            mapped: TSOrderBook = BybitOrderBookMapper.mapResponse(data)
+            print(mapped)
 
     @override
     async def close(self):
