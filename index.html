@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmKyu — Showcase</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --surface2: #1a1a28;
+            --border: #2a2a3d;
+            --text: #e0e0ec;
+            --text-dim: #8888a0;
+            --accent: #a78bfa;
+            --accent2: #f59e0b;
+            --green: #34d399;
+            --red: #f87171;
+            --blue: #60a5fa;
+            --orange: #fb923c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: var(--text-dim);
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        .hero .team {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .hero .team span {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            animation: bounce 2s infinite;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Sections */
+        section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            font-size: 1.05rem;
+        }
+
+        /* Cards */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        /* Exchange cards */
+        .exchange-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .exchange-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exchange-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .exchange-card.binance::after { background: linear-gradient(90deg, #F0B90B, #F8D12F); }
+        .exchange-card.bybit::after { background: linear-gradient(90deg, #F7A600, #FFD700); }
+        .exchange-card.kraken::after { background: linear-gradient(90deg, #5741D9, #7B61FF); }
+
+        .exchange-card .exchange-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .exchange-card .protocol {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-family: monospace;
+            margin-bottom: 1rem;
+        }
+
+        .exchange-card .features {
+            list-style: none;
+            text-align: left;
+        }
+
+        .exchange-card .features li {
+            padding: 0.3rem 0;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .exchange-card .features li::before {
+            content: '>';
+            color: var(--green);
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        /* Crypto coins */
+        .coins {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .coin {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem 2.5rem;
+            text-align: center;
+            min-width: 140px;
+            transition: transform 0.2s;
+        }
+
+        .coin:hover { transform: scale(1.05); }
+
+        .coin .symbol {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.2rem;
+        }
+
+        .coin:nth-child(1) .symbol { color: #F7931A; }
+        .coin:nth-child(2) .symbol { color: #627EEA; }
+        .coin:nth-child(3) .symbol { color: #C2A633; }
+        .coin:nth-child(4) .symbol { color: #9945FF; }
+
+        .coin .name {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        /* Code blocks */
+        .code-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .code-block .code-header {
+            background: var(--surface2);
+            padding: 0.8rem 1.2rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-block .code-header .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .code-block .code-header .dot:nth-child(1) { background: var(--red); }
+        .code-block .code-header .dot:nth-child(2) { background: var(--accent2); }
+        .code-block .code-header .dot:nth-child(3) { background: var(--green); }
+
+        .code-block pre {
+            padding: 1.2rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+
+        .code-block pre .kw { color: var(--accent); }
+        .code-block pre .fn { color: var(--blue); }
+        .code-block pre .str { color: var(--green); }
+        .code-block pre .cls { color: var(--accent2); }
+        .code-block pre .cmt { color: var(--text-dim); font-style: italic; }
+        .code-block pre .num { color: var(--orange); }
+
+        /* Architecture */
+        .architecture-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Data models */
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .model-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .model-card .model-header {
+            background: linear-gradient(135deg, var(--surface2), var(--surface));
+            padding: 1.2rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            font-family: monospace;
+        }
+
+        .model-card .fields {
+            padding: 1rem 1.5rem;
+        }
+
+        .model-card .field {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .model-card .field:last-child { border-bottom: none; }
+
+        .model-card .field-name {
+            font-family: monospace;
+            color: var(--blue);
+        }
+
+        .model-card .field-type {
+            font-family: monospace;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* Pipeline */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+            padding: 2rem 0;
+        }
+
+        .pipeline-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem 1.8rem;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .pipeline-step .step-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .pipeline-step .step-name { font-weight: 600; font-size: 0.95rem; }
+        .pipeline-step .step-tech { color: var(--text-dim); font-size: 0.8rem; }
+
+        .pipeline-arrow {
+            color: var(--accent);
+            font-size: 1.5rem;
+            padding: 0 0.5rem;
+        }
+
+        .pipeline-step.active {
+            border-color: var(--green);
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.15);
+        }
+
+        .pipeline-step.planned {
+            opacity: 0.5;
+            border-style: dashed;
+        }
+
+        /* ML section */
+        .ml-predictions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .prediction-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem;
+        }
+
+        .prediction-card .class-label {
+            font-family: monospace;
+            font-size: 0.85rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 0.8rem;
+        }
+
+        .prediction-card.up .class-label { background: rgba(52,211,153,0.15); color: var(--green); }
+        .prediction-card.down .class-label { background: rgba(248,113,113,0.15); color: var(--red); }
+        .prediction-card.hold .class-label { background: rgba(96,165,250,0.15); color: var(--blue); }
+
+        .prediction-card h4 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .prediction-card p { color: var(--text-dim); font-size: 0.9rem; }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding-left: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 0.4rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            background: var(--bg);
+        }
+
+        .timeline-item.done::before {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .timeline-item.current::before {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .timeline-item .week {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-item h4 { font-size: 1.15rem; margin-bottom: 0.3rem; }
+        .timeline-item p { color: var(--text-dim); font-size: 0.9rem; }
+
+        /* Tech stack */
+        .tech-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .tech-badge {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 600;
+            transition: border-color 0.2s;
+        }
+
+        .tech-badge:hover { border-color: var(--accent); }
+
+        .tech-badge .tech-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .tech-badge .tech-icon.python { background: rgba(55,118,171,0.2); color: #3776AB; }
+        .tech-badge .tech-icon.kafka { background: rgba(35,31,32,0.3); color: #fff; }
+        .tech-badge .tech-icon.druid { background: rgba(107,76,154,0.2); color: #8B6FB0; }
+        .tech-badge .tech-icon.fastapi { background: rgba(0,150,136,0.2); color: #009688; }
+        .tech-badge .tech-icon.ws { background: rgba(96,165,250,0.2); color: var(--blue); }
+        .tech-badge .tech-icon.docker { background: rgba(33,150,243,0.2); color: #2196F3; }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat .number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat .label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Signal patterns */
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .signal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem;
+        }
+
+        .signal-card .signal-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .signal-card p { color: var(--text-dim); font-size: 0.9rem; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Divider */
+        .divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 2px;
+            margin: 1rem 0 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .code-section { grid-template-columns: 1fr; }
+            .pipeline { flex-direction: column; }
+            .pipeline-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+    <h1>EmKyu</h1>
+    <p class="subtitle">
+        Plataforma de inteligencia predictiva que transforma datos de mercado en tiempo real
+        en proyecciones de valor para criptomonedas mediante procesamiento de baja latencia.
+    </p>
+    <div class="team">
+        <span>Adrian M. Romero Viro</span>
+        <span>Aaron Carrera Pascual</span>
+        <span>Isaias Beneito Ribera</span>
+    </div>
+    <div class="scroll-hint">&#8595;</div>
+</div>
+
+<!-- Stats -->
+<section>
+    <div class="stats">
+        <div class="stat">
+            <div class="number">3</div>
+            <div class="label">Exchanges conectados</div>
+        </div>
+        <div class="stat">
+            <div class="number">4</div>
+            <div class="label">Criptomonedas rastreadas</div>
+        </div>
+        <div class="stat">
+            <div class="number">6</div>
+            <div class="label">WebSocket streams</div>
+        </div>
+        <div class="stat">
+            <div class="number">2</div>
+            <div class="label">Tipos de datos capturados</div>
+        </div>
+    </div>
+</section>
+
+<!-- Que es EmKyu -->
+<section>
+    <h2 class="section-title">Que hace EmKyu</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">
+        High-Frequency Trading (HFT) con redes neuronales para detectar patrones en tiempo real
+    </p>
+    <div class="grid-3">
+        <div class="card">
+            <div class="icon">&#127760;</div>
+            <h3>Scraping en Tiempo Real</h3>
+            <p>Conexiones WebSocket concurrentes a Binance, Bybit y Kraken recogiendo trades y orderbooks de 4 criptomonedas simultaneamente.</p>
+        </div>
+        <div class="card">
+            <div class="icon">&#9889;</div>
+            <h3>Procesamiento de Baja Latencia</h3>
+            <p>Pipeline de datos desde el exchange hasta Apache Druid a traves de Kafka, permitiendo consultas en tiempo real sobre datos de mercado.</p>
+        </div>
+        <div class="card">
+            <div class="icon">&#129504;</div>
+            <h3>Prediccion con Deep Learning</h3>
+            <p>Red neuronal entrenada para detectar absorciones, barridos de liquidez y presion de ventas, clasificando el movimiento en 3 clases.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Arquitectura -->
+<section>
+    <h2 class="section-title">Arquitectura del Sistema</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">Flujo completo desde los exchanges hasta las predicciones</p>
+
+    <div class="pipeline">
+        <div class="pipeline-step active">
+            <div class="step-icon">&#127760;</div>
+            <div class="step-name">Exchanges</div>
+            <div class="step-tech">WebSocket</div>
+        </div>
+        <div class="pipeline-arrow">&#10132;</div>
+        <div class="pipeline-step active">
+            <div class="step-icon">&#128375;</div>
+            <div class="step-name">Scraper</div>
+            <div class="step-tech">Python asyncio</div>
+        </div>
+        <div class="pipeline-arrow">&#10132;</div>
+        <div class="pipeline-step planned">
+            <div class="step-icon">&#128232;</div>
+            <div class="step-name">Kafka</div>
+            <div class="step-tech">Message Broker</div>
+        </div>
+        <div class="pipeline-arrow">&#10132;</div>
+        <div class="pipeline-step planned">
+            <div class="step-icon">&#128050;</div>
+            <div class="step-name">Apache Druid</div>
+            <div class="step-tech">OLAP Database</div>
+        </div>
+        <div class="pipeline-arrow">&#10132;</div>
+        <div class="pipeline-step planned">
+            <div class="step-icon">&#129504;</div>
+            <div class="step-name">ML Model</div>
+            <div class="step-tech">FastAPI</div>
+        </div>
+        <div class="pipeline-arrow">&#10132;</div>
+        <div class="pipeline-step planned">
+            <div class="step-icon">&#128225;</div>
+            <div class="step-name">Backend</div>
+            <div class="step-tech">WebSocket Server</div>
+        </div>
+    </div>
+
+    <div class="architecture-container" style="margin-top: 2rem;">
+        <div class="mermaid">
+graph TB
+    subgraph Clientes["Clientes"]
+        C1["Cliente 1"]
+        C2["Cliente 2"]
+        C3["Cliente N..."]
+    end
+
+    subgraph Backend["Backend — Python WebSocket Server"]
+        WS_SERVER["WebSocket Server"]
+        HANDLER["Request Handler"]
+        DRUID_CLIENT["Druid Query Client"]
+        WS_SERVER --> HANDLER --> DRUID_CLIENT
+    end
+
+    subgraph Scraper["Scraper — WebSocket Service"]
+        SC_ENGINE["Scraping Engine"]
+        WS_CONN["WebSocket Connector"]
+        DATA_PARSER["Data Parser"]
+        SC_ENGINE --> DATA_PARSER --> WS_CONN
+    end
+
+    subgraph Kafka["Apache Kafka"]
+        direction TB
+        TOPIC_TX["Topic: Transacciones"]
+        TOPIC_OB["Topic: OrderBook"]
+        TOPIC_MKT["Topic: Apertura/Cierre Mercado"]
+    end
+
+    subgraph Druid["Apache Druid"]
+        direction TB
+        INGESTION["Kafka Ingestion Supervisor"]
+        DATASOURCES["Datasources"]
+
+        subgraph Datos["Datasources"]
+            DS_TX["Transacciones"]
+            DS_OB["OrderBook"]
+            DS_MKT["Apertura / Cierre Mercado"]
+        end
+
+        subgraph Monedas["Monedas"]
+            ETH["Ethereum"]
+            BTC["Bitcoin"]
+            DOGE["DogeCoin"]
+            SOL["Solana"]
+        end
+
+        INGESTION --> DATASOURCES
+        DATASOURCES --- Datos
+        Datos --- Monedas
+    end
+
+    subgraph ML["Procesamiento — FastAPI"]
+        API["FastAPI Server"]
+        TRAINING["Entrenamiento Red Neuronal"]
+        MODEL["Modelo Entrenado"]
+        API --> TRAINING --> MODEL
+    end
+
+    C1 & C2 & C3 <-->|"WebSocket"| WS_SERVER
+    DRUID_CLIENT -->|"Druid SQL / Native Query"| Druid
+    WS_CONN -->|"Produce mensajes"| Kafka
+    TOPIC_TX & TOPIC_OB & TOPIC_MKT -->|"Ingestion en tiempo real"| INGESTION
+    Druid -->|"Lectura de datos"| API
+
+    classDef backendStyle fill:#4A90D9,stroke:#2C5F8A,color:#fff,rx:12,ry:12
+    classDef scraperStyle fill:#E07B3C,stroke:#A85A2A,color:#fff,rx:12,ry:12
+    classDef kafkaStyle fill:#333,stroke:#555,color:#fff,rx:12,ry:12
+    classDef druidStyle fill:#6B4C9A,stroke:#4A3470,color:#fff,rx:12,ry:12
+    classDef mlStyle fill:#2EAD6D,stroke:#1D7A4B,color:#fff,rx:12,ry:12
+    classDef clientStyle fill:#607D8B,stroke:#455A64,color:#fff,rx:12,ry:12
+    classDef topicStyle fill:#444,stroke:#666,color:#E8E8E8,rx:8,ry:8
+    classDef dsStyle fill:#8B6FB0,stroke:#6B4C9A,color:#fff,rx:8,ry:8
+    classDef coinStyle fill:#F5A623,stroke:#D4881E,color:#fff,rx:8,ry:8
+
+    class WS_SERVER,HANDLER,DRUID_CLIENT backendStyle
+    class SC_ENGINE,WS_CONN,DATA_PARSER scraperStyle
+    class TOPIC_TX,TOPIC_OB,TOPIC_MKT topicStyle
+    class INGESTION,DATASOURCES druidStyle
+    class DS_TX,DS_OB,DS_MKT dsStyle
+    class ETH,BTC,DOGE,SOL coinStyle
+    class API,TRAINING,MODEL mlStyle
+    class C1,C2,C3 clientStyle
+        </div>
+    </div>
+</section>
+
+<!-- Exchanges -->
+<section>
+    <h2 class="section-title">Exchanges Conectados</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">Conexiones WebSocket en tiempo real a los 3 principales exchanges</p>
+    <div class="exchange-grid">
+        <div class="exchange-card binance">
+            <div class="exchange-name">Binance</div>
+            <div class="protocol">wss://stream.binance.com:9443/ws</div>
+            <ul class="features">
+                <li>Trades en tiempo real por stream individual</li>
+                <li>OrderBook con profundidad de mercado</li>
+                <li>Mapper con logica market-maker (campo "m")</li>
+                <li>Mayor volumen global de trading</li>
+            </ul>
+        </div>
+        <div class="exchange-card bybit">
+            <div class="exchange-name">Bybit</div>
+            <div class="protocol">wss://stream.bybit.com/v5/public/spot</div>
+            <ul class="features">
+                <li>API v5 con subscripcion por topico</li>
+                <li>Trades y OrderBook en tiempo real</li>
+                <li>Formato de respuesta unificado</li>
+                <li>Requiere mensaje de subscripcion inicial</li>
+            </ul>
+        </div>
+        <div class="exchange-card kraken">
+            <div class="exchange-name">Kraken</div>
+            <div class="protocol">wss://ws.kraken.com/v2</div>
+            <ul class="features">
+                <li>WebSocket API v2</li>
+                <li>Trades y OrderBook en tiempo real</li>
+                <li>Subscripcion con metodo y parametros</li>
+                <li>Datos de alta fiabilidad</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Trade vs OrderBook -->
+<section>
+    <h2 class="section-title">Trade vs OrderBook</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">Dos tipos de datos de mercado fundamentalmente diferentes</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem;">
+        <!-- Trade -->
+        <div class="card" style="border-top: 3px solid var(--green);">
+            <h3 style="margin-bottom: 1rem; color: var(--green);">Trade (Transaccion)</h3>
+            <p style="margin-bottom: 1.2rem;">Un trade es una <strong>operacion ya ejecutada</strong>. Alguien compro y alguien vendio a un precio concreto. Es un hecho que ya ocurrio.</p>
+            <div style="background: var(--surface2); border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem;">
+                <div style="font-family: monospace; font-size: 0.85rem; line-height: 2;">
+                    <span style="color: var(--text-dim);">timestamp:</span> <span style="color: var(--accent2);">1711800000</span><br>
+                    <span style="color: var(--text-dim);">symbol:</span> <span style="color: var(--green);">"BTCUSDT"</span><br>
+                    <span style="color: var(--text-dim);">price:</span> <span style="color: var(--accent2);">87,432.50</span><br>
+                    <span style="color: var(--text-dim);">volume:</span> <span style="color: var(--accent2);">0.15 BTC</span><br>
+                    <span style="color: var(--text-dim);">side:</span> <span style="color: var(--green);">BUY</span>
+                </div>
+            </div>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--green); margin-right: 0.5rem;">&#10003;</span> Representa una operacion <strong>real y cerrada</strong>
+                </li>
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--green); margin-right: 0.5rem;">&#10003;</span> Tiene precio, volumen y direccion (BUY/SELL)
+                </li>
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--green); margin-right: 0.5rem;">&#10003;</span> Sirve para medir <strong>presion compradora/vendedora</strong>
+                </li>
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--green); margin-right: 0.5rem;">&#10003;</span> Analogia: el <em>ticket de caja</em> de una compra
+                </li>
+            </ul>
+        </div>
+        <!-- OrderBook -->
+        <div class="card" style="border-top: 3px solid var(--blue);">
+            <h3 style="margin-bottom: 1rem; color: var(--blue);">OrderBook (Libro de Ordenes)</h3>
+            <p style="margin-bottom: 1.2rem;">El orderbook es la <strong>lista de ordenes pendientes</strong>. Muestra a que precios la gente quiere comprar (bids) y vender (asks). Es intencion, no hechos.</p>
+            <div style="background: var(--surface2); border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-family: monospace; font-size: 0.85rem;">
+                    <div>
+                        <div style="color: var(--green); font-weight: 700; margin-bottom: 0.5rem;">BIDS (Compra)</div>
+                        <div style="color: var(--text-dim); line-height: 1.8;">
+                            87,430 x 2.5<br>
+                            87,425 x 1.8<br>
+                            87,420 x 4.1<br>
+                            <span style="color: var(--text-dim); font-style: italic;">&#8595; mas abajo...</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: var(--red); font-weight: 700; margin-bottom: 0.5rem;">ASKS (Venta)</div>
+                        <div style="color: var(--text-dim); line-height: 1.8;">
+                            87,435 x 1.2<br>
+                            87,440 x 3.0<br>
+                            87,450 x 0.7<br>
+                            <span style="color: var(--text-dim); font-style: italic;">&#8593; mas arriba...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--blue); margin-right: 0.5rem;">&#10003;</span> Representa <strong>intenciones</strong> de compra y venta
+                </li>
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--blue); margin-right: 0.5rem;">&#10003;</span> Bids = a cuanto quieren comprar / Asks = a cuanto quieren vender
+                </li>
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--blue); margin-right: 0.5rem;">&#10003;</span> Sirve para detectar <strong>absorcion y liquidez</strong>
+                </li>
+                <li style="padding: 0.3rem 0; color: var(--text-dim); font-size: 0.9rem;">
+                    <span style="color: var(--blue); margin-right: 0.5rem;">&#10003;</span> Analogia: la <em>cola de gente esperando</em> para comprar/vender
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- Resumen visual -->
+    <div class="card" style="margin-top: 2rem; text-align: center; border: 1px dashed var(--border);">
+        <p style="font-size: 1.1rem;">
+            <strong style="color: var(--green);">Trade</strong> = lo que <strong>ya paso</strong> &nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+            <strong style="color: var(--blue);">OrderBook</strong> = lo que la gente <strong>quiere que pase</strong>
+        </p>
+        <p style="color: var(--text-dim); margin-top: 0.5rem; font-size: 0.9rem;">
+            Juntos permiten al modelo detectar patrones como absorcion (muchas ventas en el book pero trades compradores las absorben)
+            o barridos de liquidez (trades que agotan niveles enteros del orderbook).
+        </p>
+    </div>
+</section>
+
+<!-- Criptomonedas -->
+<section style="text-align: center;">
+    <h2 class="section-title">Criptomonedas Rastreadas</h2>
+    <div class="divider" style="margin: 1rem auto 2rem;"></div>
+    <div class="coins">
+        <div class="coin">
+            <div class="symbol">BTC</div>
+            <div class="name">Bitcoin</div>
+        </div>
+        <div class="coin">
+            <div class="symbol">ETH</div>
+            <div class="name">Ethereum</div>
+        </div>
+        <div class="coin">
+            <div class="symbol">DOGE</div>
+            <div class="name">DogeCoin</div>
+        </div>
+        <div class="coin">
+            <div class="symbol">SOL</div>
+            <div class="name">Solana</div>
+        </div>
+    </div>
+</section>
+
+<!-- Modelos de datos -->
+<section>
+    <h2 class="section-title">Modelos de Datos</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">Estructuras unificadas que normalizan los datos de los 3 exchanges</p>
+    <div class="models-grid">
+        <div class="model-card">
+            <div class="model-header">TSTrade</div>
+            <div class="fields">
+                <div class="field">
+                    <span class="field-name">timestamp</span>
+                    <span class="field-type">int</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">name</span>
+                    <span class="field-type">str</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">price</span>
+                    <span class="field-type">float</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">volume</span>
+                    <span class="field-type">float</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">side</span>
+                    <span class="field-type">Side (BUY | SELL)</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">broker</span>
+                    <span class="field-type">Broker</span>
+                </div>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-header">TSOrderBook</div>
+            <div class="fields">
+                <div class="field">
+                    <span class="field-name">timestamp</span>
+                    <span class="field-type">int</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">symbol</span>
+                    <span class="field-type">str</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">bids</span>
+                    <span class="field-type">list[OrderLevel]</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">asks</span>
+                    <span class="field-type">list[OrderLevel]</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">broker</span>
+                    <span class="field-type">Broker</span>
+                </div>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-header">OrderLevel</div>
+            <div class="fields">
+                <div class="field">
+                    <span class="field-name">price</span>
+                    <span class="field-type">float</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">quantity</span>
+                    <span class="field-type">float</span>
+                </div>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-header">BrokerClient</div>
+            <div class="fields">
+                <div class="field">
+                    <span class="field-name">url</span>
+                    <span class="field-type">str</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">name</span>
+                    <span class="field-type">str</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">args</span>
+                    <span class="field-type">dict | None</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">connect()</span>
+                    <span class="field-type">async</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">onListen()</span>
+                    <span class="field-type">async</span>
+                </div>
+                <div class="field">
+                    <span class="field-name">close()</span>
+                    <span class="field-type">async</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Codigo -->
+<section>
+    <h2 class="section-title">Codigo Implementado</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">Fragmentos clave del scraper en funcionamiento</p>
+    <div class="code-section">
+        <div class="code-block">
+            <div class="code-header">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span style="margin-left: 0.5rem;">main.py — Entry Point</span>
+            </div>
+            <pre><span class="kw">import</span> asyncio
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    brokers: <span class="cls">list</span>[<span class="cls">BrokerClient</span>] = [
+        <span class="cls">BybitBroker</span>.<span class="fn">create</span>(),
+        <span class="cls">BinanceBroker</span>.<span class="fn">create</span>(),
+        <span class="cls">KrakenBroker</span>.<span class="fn">create</span>(),
+        <span class="cls">BybitOrderBook</span>.<span class="fn">create</span>(),
+        <span class="cls">BinanceOrderBook</span>.<span class="fn">create</span>(),
+        <span class="cls">KrakenOrderBook</span>.<span class="fn">create</span>(),
+    ]
+
+    <span class="cmt"># Conectar todos los brokers concurrentemente</span>
+    <span class="kw">await</span> asyncio.<span class="fn">gather</span>(
+        *[b.<span class="fn">connect</span>() <span class="kw">for</span> b <span class="kw">in</span> brokers]
+    )
+
+    <span class="kw">try</span>:
+        <span class="kw">while</span> <span class="num">True</span>:
+            <span class="kw">await</span> asyncio.<span class="fn">gather</span>(
+                *[b.<span class="fn">onListen</span>() <span class="kw">for</span> b <span class="kw">in</span> brokers]
+            )
+    <span class="kw">except</span> <span class="cls">KeyboardInterrupt</span>:
+        <span class="kw">await</span> asyncio.<span class="fn">gather</span>(
+            *[b.<span class="fn">close</span>() <span class="kw">for</span> b <span class="kw">in</span> brokers]
+        )</pre>
+        </div>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span style="margin-left: 0.5rem;">trades/client.py — Base Class</span>
+            </div>
+            <pre><span class="kw">from</span> websockets.asyncio.client <span class="kw">import</span> (
+    <span class="cls">ClientConnection</span>, connect
+)
+
+<span class="kw">class</span> <span class="cls">BrokerClient</span>:
+
+    url: <span class="cls">str</span>
+    name: <span class="cls">str</span>
+    args: <span class="cls">dict</span>[<span class="cls">str</span>, <span class="cls">Any</span>] | <span class="num">None</span>
+    client: <span class="cls">ClientConnection</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self,
+        url: <span class="cls">str</span>,
+        name: <span class="cls">str</span>,
+        args: <span class="cls">dict</span>[<span class="cls">str</span>, <span class="cls">Any</span>] | <span class="num">None</span>,
+    ) -> <span class="num">None</span>:
+        self.url = url
+        self.name = name
+        self.args = args
+
+    <span class="kw">async def</span> <span class="fn">connect</span>(self): ...
+    <span class="kw">async def</span> <span class="fn">onListen</span>(self): ...
+    <span class="kw">async def</span> <span class="fn">close</span>(self): ...</pre>
+        </div>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span style="margin-left: 0.5rem;">mapper/model/time_series_cripto.py</span>
+            </div>
+            <pre><span class="kw">class</span> <span class="cls">Side</span>(enum.<span class="cls">Enum</span>):
+    BUY = <span class="str">"BUY"</span>
+    SELL = <span class="str">"SELL"</span>
+
+<span class="kw">class</span> <span class="cls">TSTrade</span>:
+    timestamp: <span class="cls">int</span>
+    name:      <span class="cls">str</span>
+    price:     <span class="cls">float</span>
+    volume:    <span class="cls">float</span>
+    side:      <span class="cls">str</span>
+    broker:    <span class="cls">str</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self) -> <span class="cls">str</span>:
+        <span class="kw">return</span> (
+            <span class="str">f"TSTrade(ts={self.timestamp}, "</span>
+            <span class="str">f"'{self.name}', {self.side} "</span>
+            <span class="str">f"price={self.price}, "</span>
+            <span class="str">f"vol={self.volume:.8f}, "</span>
+            <span class="str">f"broker='{self.broker}')"</span>
+        )</pre>
+        </div>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span style="margin-left: 0.5rem;">orderbook/mapper/model/order_book.py</span>
+            </div>
+            <pre><span class="kw">class</span> <span class="cls">OrderLevel</span>:
+    price:    <span class="cls">float</span>
+    quantity: <span class="cls">float</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self) -> <span class="cls">str</span>:
+        <span class="kw">return</span> <span class="str">f"[{self.price:.2f} x {self.quantity:.8f}]"</span>
+
+<span class="kw">class</span> <span class="cls">TSOrderBook</span>:
+    timestamp: <span class="cls">int</span>
+    symbol:    <span class="cls">str</span>
+    bids:      <span class="cls">list</span>[<span class="cls">OrderLevel</span>]
+    asks:      <span class="cls">list</span>[<span class="cls">OrderLevel</span>]
+    broker:    <span class="cls">str</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self) -> <span class="cls">str</span>:
+        <span class="kw">return</span> (
+            <span class="str">f"OrderBook({self.broker} "</span>
+            <span class="str">f"{self.symbol} "</span>
+            <span class="str">f"bids=[...] asks=[...])"</span>
+        )</pre>
+        </div>
+    </div>
+</section>
+
+<!-- ML Deteccion -->
+<section>
+    <h2 class="section-title">Deteccion de Patrones (ML)</h2>
+    <div class="divider"></div>
+    <p class="section-subtitle">Patrones que el modelo de Deep Learning identifica para HFT</p>
+    <div class="signals-grid">
+        <div class="signal-card">
+            <div class="signal-name">&#128200; Absorcion</div>
+            <p>Si hay muchas ordenes de venta y el precio no baja, la red detecta que hay un comprador gigante absorbiendo esas ordenes. <strong>El precio va a rebotar.</strong></p>
+        </div>
+        <div class="signal-card">
+            <div class="signal-name">&#9889; Barrido de Liquidez</div>
+            <p>Muchas compras que agotan las ordenes del book. La red entiende que hay que <strong>comprar rapido para seguir el impulso</strong> del movimiento.</p>
+        </div>
+        <div class="signal-card">
+            <div class="signal-name">&#128308; Presion de Ventas</div>
+            <p>Volumen de ventas 3x mayor al de compras en los ultimos 10 segundos. La red entiende que <strong>el precio va a caer</strong>.</p>
+        </div>
+    </div>
+
+    <div class="ml-predictions">
+        <div class="prediction-card up">
+            <span class="class-label">Clase 0</span>
+            <h4>Precio Sube</h4>
+            <p>El precio subira mas de un X% en los proximos Y segundos.</p>
+        </div>
+        <div class="prediction-card down">
+            <span class="class-label">Clase 1</span>
+            <h4>Precio Baja</h4>
+            <p>El precio bajara mas de un X% en los proximos Y segundos.</p>
+        </div>
+        <div class="prediction-card hold">
+            <span class="class-label">Clase 2</span>
+            <h4>HOLD / Neutral</h4>
+            <p>El precio se mantendra estable. No hay senal clara de movimiento.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Tech Stack -->
+<section style="text-align: center;">
+    <h2 class="section-title">Stack Tecnologico</h2>
+    <div class="divider" style="margin: 1rem auto 2rem;"></div>
+    <div class="tech-grid">
+        <div class="tech-badge">
+            <div class="tech-icon python">Py</div>
+            Python
+        </div>
+        <div class="tech-badge">
+            <div class="tech-icon ws">WS</div>
+            WebSockets
+        </div>
+        <div class="tech-badge">
+            <div class="tech-icon kafka">K</div>
+            Apache Kafka
+        </div>
+        <div class="tech-badge">
+            <div class="tech-icon druid">D</div>
+            Apache Druid
+        </div>
+        <div class="tech-badge">
+            <div class="tech-icon fastapi">F</div>
+            FastAPI
+        </div>
+        <div class="tech-badge">
+            <div class="tech-icon docker">D</div>
+            Docker
+        </div>
+    </div>
+</section>
+
+<!-- Timeline -->
+<section>
+    <h2 class="section-title">Calendario de Hitos</h2>
+    <div class="divider"></div>
+    <div class="timeline">
+        <div class="timeline-item current">
+            <div class="week">Semana 1 — 24 Mar - 31 Mar</div>
+            <h4>Data Pipeline Completo</h4>
+            <p>Conectar Scraper a Kafka. Configurar el Supervisor en Druid para ingerir Trades. Los datos deben estar disponibles para consulta inmediata.</p>
+        </div>
+        <div class="timeline-item">
+            <div class="week">Semana 2 — 01 Abr - 07 Abr</div>
+            <h4>Feature & Model Training</h4>
+            <p>Extraccion de datos historicos desde Druid. Definicion programatica de la logica de Absorcion y Barrido de Liquidez. Entrenamiento inicial de la red neuronal.</p>
+        </div>
+        <div class="timeline-item">
+            <div class="week">Semana 3 — 08 Abr - 14 Abr</div>
+            <h4>Inferencia & Backend</h4>
+            <p>Integracion del modelo en FastAPI. El Backend debe procesar la salida del modelo y habilitar el servidor de Sockets para la conexion de clientes finales.</p>
+        </div>
+        <div class="timeline-item">
+            <div class="week">Semana 4 — 15 Abr - 21 Abr</div>
+            <h4>Stress Test & Deploy</h4>
+            <p>Prueba de carga. Cierre y entrega.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Estructura del proyecto -->
+<section>
+    <h2 class="section-title">Estructura del Proyecto</h2>
+    <div class="divider"></div>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span style="margin-left: 0.5rem;">Arbol de ficheros</span>
+        </div>
+        <pre>EmKyu/
+├── README.md
+├── arquitectura.mermaid
+├── planificacion.xlsx
+└── scrapping/
+    ├── requirements.txt
+    ├── .env
+    └── src/
+        ├── <span class="fn">main.py</span>                      <span class="cmt"># Entry point — asyncio.run()</span>
+        ├── enviroment.py
+        ├── <span class="cls">broker/</span>
+        │   └── __init__.py              <span class="cmt"># Enum: BYBIT, BINANCE, KRAKEN</span>
+        ├── <span class="cls">env/</span>
+        │   ├── binance.py               <span class="cmt"># WSS endpoints</span>
+        │   ├── bybit.py
+        │   └── kraken.py
+        ├── <span class="cls">kafka/</span>
+        │   └── coin_data.py             <span class="cmt"># CoinData model (stub)</span>
+        ├── <span class="cls">trades/</span>
+        │   ├── <span class="fn">client.py</span>                <span class="cmt"># BrokerClient base class</span>
+        │   ├── binance.py               <span class="cmt"># BinanceBroker</span>
+        │   ├── bybit.py                 <span class="cmt"># BybitBroker</span>
+        │   ├── kraken.py                <span class="cmt"># KrakenBroker</span>
+        │   └── <span class="cls">mapper/</span>
+        │       ├── binance.py           <span class="cmt"># Response → TSTrade</span>
+        │       ├── bybit.py
+        │       ├── kraken.py
+        │       └── <span class="cls">model/</span>
+        │           └── <span class="fn">time_series_cripto.py</span>  <span class="cmt"># TSTrade + Side</span>
+        └── <span class="cls">orderbook/</span>
+            ├── <span class="fn">main.py</span>                  <span class="cmt"># OrderBook entry point</span>
+            ├── binance.py               <span class="cmt"># BinanceOrderBook</span>
+            ├── bybit.py                 <span class="cmt"># BybitOrderBook</span>
+            ├── kraken.py                <span class="cmt"># KrakenOrderBook</span>
+            └── <span class="cls">mapper/</span>
+                ├── binance.py           <span class="cmt"># Response → TSOrderBook</span>
+                ├── bybit.py
+                ├── kraken.py
+                └── <span class="cls">model/</span>
+                    └── <span class="fn">order_book.py</span>    <span class="cmt"># TSOrderBook + OrderLevel</span></pre>
+    </div>
+</section>
+
+<footer>
+    <p><strong>EmKyu</strong> — Equipo Gatitas</p>
+    <p style="margin-top: 0.5rem;">IES San Vicente &middot; Big Data &middot; 2025-2026</p>
+</footer>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+            primaryColor: '#4A90D9',
+            primaryTextColor: '#fff',
+            primaryBorderColor: '#2C5F8A',
+            lineColor: '#8888a0',
+            secondaryColor: '#6B4C9A',
+            tertiaryColor: '#1a1a28',
+            fontFamily: 'Segoe UI, system-ui, sans-serif',
+        }
+    });
+</script>
+
+</body>
+</html>
