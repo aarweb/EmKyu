@@ -4,6 +4,7 @@ from typing import override
 import websockets
 from websockets.asyncio.client import connect
 
+from scrapper_queue.producer import ScrapperProducer
 from trades.client import BrokerClient
 from env.binance import BINANCE_WS
 from orderbook.mapper.binance import BinanceOrderBookMapper
@@ -40,7 +41,7 @@ class BinanceOrderBook(BrokerClient):
             data = json.loads(await self.client.recv())
             if "data" in data:
                 mapped: TSOrderBook = BinanceOrderBookMapper.mapResponse(data)
-                print(mapped)
+                await ScrapperProducer.sendOrderbook(mapped)
         except websockets.exceptions.ConnectionClosed:
             await self.connect()
         except Exception as e:

@@ -1085,9 +1085,9 @@ graph TB
 
 <span class="kw">async def</span> <span class="fn">main</span>():
     brokers: <span class="cls">list</span>[<span class="cls">BrokerClient</span>] = [
-        <span class="cls">BybitBroker</span>.<span class="fn">create</span>(),
-        <span class="cls">BinanceBroker</span>.<span class="fn">create</span>(),
-        <span class="cls">KrakenBroker</span>.<span class="fn">create</span>(),
+        <span class="cls">BybitTrade</span>.<span class="fn">create</span>(),
+        <span class="cls">BinanceTrade</span>.<span class="fn">create</span>(),
+        <span class="cls">KrakenTrade</span>.<span class="fn">create</span>(),
         <span class="cls">BybitOrderBook</span>.<span class="fn">create</span>(),
         <span class="cls">BinanceOrderBook</span>.<span class="fn">create</span>(),
         <span class="cls">KrakenOrderBook</span>.<span class="fn">create</span>(),
@@ -1320,9 +1320,9 @@ graph TB
         │   └── coin_data.py             <span class="cmt"># CoinData model (stub)</span>
         ├── <span class="cls">trades/</span>
         │   ├── <span class="fn">client.py</span>                <span class="cmt"># BrokerClient base class</span>
-        │   ├── binance.py               <span class="cmt"># BinanceBroker</span>
-        │   ├── bybit.py                 <span class="cmt"># BybitBroker</span>
-        │   ├── kraken.py                <span class="cmt"># KrakenBroker</span>
+        │   ├── binance.py               <span class="cmt"># BinanceTrade</span>
+        │   ├── bybit.py                 <span class="cmt"># BybitTrade</span>
+        │   ├── kraken.py                <span class="cmt"># KrakenTrade</span>
         │   └── <span class="cls">mapper/</span>
         │       ├── binance.py           <span class="cmt"># Response → TSTrade</span>
         │       ├── bybit.py

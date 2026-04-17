@@ -1,6 +1,4 @@
-import asyncio
 import json
-import stat
 from typing import override
 
 from websockets.asyncio.client import connect
@@ -12,10 +10,10 @@ from env.bybit import BYBIT_WS
 from .client import BrokerClient
 
 
-class BybitBroker(BrokerClient):
+class BybitTrade(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
-        return BybitBroker(
+        return BybitTrade(
             BYBIT_WS,
             "BYBIT",
             args={

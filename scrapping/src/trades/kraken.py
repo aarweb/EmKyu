@@ -13,10 +13,10 @@ from env.kraken import KRAKEN_WS
 from .client import BrokerClient
 
 
-class KrakenBroker(BrokerClient):
+class KrakenTrade(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
-        return KrakenBroker(
+        return KrakenTrade(
             KRAKEN_WS,
             "KRAKEN",
             args={

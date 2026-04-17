@@ -12,8 +12,8 @@ SCRAPPER_PRODUCER: AIOKafkaProducer | None = None
 
 class ScrapperProducer:
     @staticmethod
-    async def sendTrait(trait: TSTrade):
-        await SCRAPPER_PRODUCER.send(TRAIT_TOPIC, trait)
+    async def sendTrade(trade: TSTrade):
+        await SCRAPPER_PRODUCER.send(TRAIT_TOPIC, trade)
 
     @staticmethod
     async def sendOrderbook(orderbook: TSOrderBook):

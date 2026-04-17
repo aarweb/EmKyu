@@ -12,10 +12,10 @@ from scrapper_queue.producer import ScrapperProducer
 from .client import BrokerClient
 
 
-class BinanceBroker(BrokerClient):
+class BinanceTrade(BrokerClient):
     @staticmethod
     def create() -> BrokerClient:
-        return BinanceBroker(
+        return BinanceTrade(
             BINANCE_WS,
             "BINANCE",
             args={
@@ -41,8 +41,7 @@ class BinanceBroker(BrokerClient):
         try:
             data = json.loads(await self.client.recv())
             mapped: TSTrade = BinanceDataMapper.mapResponse(data)
-            await ScrapperProducer.sendTrait(mapped)
-            print(mapped)
+            await ScrapperProducer.sendTrade(mapped)
         except websockets.exceptions.ConnectionClosed:
             await self.connect()
         except Exception as e:

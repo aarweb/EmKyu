@@ -144,3 +144,44 @@ services:
       - router
     env_file:
       - druid/druid.conf
+
+  scrapping:
+    build:
+      context: scrapping
+      dockerfile: Dockerfile
+    container_name: scrapping
+    depends_on:
+      - kafka-init
+    environment:
+      KAFKA_URL: kafka:9092
+      TRAIT_TOPIC: trades
+      ORDERBOOK_TOPIC: orderbook
+      BYBIT_WS: wss://stream.bybit.com/v5/public/spot
+      BINANCE_WS: wss://stream.binance.com:9443/ws
+      KRAKEN_WS: wss://ws.kraken.com/v2
+    restart: unless-stopped
+
+  druid-init:
+    image: curlimages/curl:8.10.1
+    container_name: druid-init
+    depends_on:
+      - coordinator
+      - middlemanager
+      - kafka-init
+    volumes:
+      - ./druid:/supervisors:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      until curl -sf http://coordinator:8081/status >/dev/null; do
+        echo 'Waiting for coordinator...'; sleep 3;
+      done;
+      for spec in /supervisors/*-supervisor.json; do
+        echo \"Submitting $$spec\";
+        curl -sS -X POST -H 'Content-Type: application/json' \
+          --data-binary @$$spec \
+          http://coordinator:8081/druid/indexer/v1/supervisor;
+        echo;
+      done;
+      "
+    restart: "no"
