@@ -7,6 +7,7 @@ from websockets.asyncio.client import connect
 from trades.mapper.binance import BinanceDataMapper
 from trades.mapper.model.time_series_cripto import TSTrade
 from env.binance import BINANCE_WS
+from scrapper_queue.producer import ScrapperProducer
 
 from .client import BrokerClient
 
@@ -40,6 +41,7 @@ class BinanceBroker(BrokerClient):
         try:
             data = json.loads(await self.client.recv())
             mapped: TSTrade = BinanceDataMapper.mapResponse(data)
+            await ScrapperProducer.sendTrait(mapped)
             print(mapped)
         except websockets.exceptions.ConnectionClosed:
             await self.connect()
