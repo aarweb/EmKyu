@@ -7,9 +7,12 @@ from trades.binance import BinanceBroker
 from orderbook.binance import BinanceOrderBook
 from orderbook.bybit import BybitOrderBook
 from orderbook.kraken import KrakenOrderBook
+from queue.producer import SCRAPPER_PRODUCER
 
 
 async def main():
+
+    await SCRAPPER_PRODUCER.start()
 
     brokers: list[BrokerClient] = [
         BybitBroker.create(),
@@ -26,6 +29,7 @@ async def main():
             _ = await asyncio.gather(*[b.onListen() for b in brokers])
     except KeyboardInterrupt:
         _ = await asyncio.gather(*[b.close() for b in brokers])
+        await SCRAPPER_PRODUCER.stop()
 
 
 asyncio.run(main())
