@@ -1,11 +1,13 @@
+volumes:
+  druid_shared: {}
+  druid_coordinator_var: {}
+  druid_broker_var: {}
+  druid_historical_var: {}
+  druid_middle_var: {}
+  druid_router_var: {}
+  druid_metadata: {}
+
 services:
-#  scrapper:
-#    build:
-#      context: scrappring
-#      dockerfile: Dockerfile
-#    container_name: scrapper
-#    depends_on:
-#      - apache-druni
   kafka:
     build:
       context: kafka
@@ -24,11 +26,102 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
-  apache-druni:
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    volumes:
+      - druid_metadata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: MiauPassword
+      POSTGRES_USER: druid
+      POSTGRES_DB: druid
+
+  zookeeper:
+    image: zookeeper:3.9
+    container_name: zookeeper
+    environment:
+      ZOO_MY_ID: 1
+
+  coordinator:
     image: apache/druid:36.0.0
+    container_name: coordinator
+    volumes:
+      - druid_shared:/opt/shared
+      - druid_coordinator_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
     ports:
-      - 8888:8888
+      - 8081:8081
+    command:
+      - coordinator
     env_file:
       - druid/druid.conf
-    
 
+  broker:
+    image: apache/druid:36.0.0
+    container_name: broker
+    volumes:
+      - druid_broker_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - 8082:8082
+    command:
+      - broker
+    env_file:
+      - druid/druid.conf
+
+  historical:
+    image: apache/druid:36.0.0
+    container_name: historical
+    volumes:
+      - druid_shared:/opt/shared
+      - druid_historical_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - 8083:8083
+    command:
+      - historical
+    env_file:
+      - druid/druid.conf
+
+  middlemanager:
+    image: apache/druid:36.0.0
+    container_name: middlemanager
+    volumes:
+      - druid_shared:/opt/shared
+      - druid_middle_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - 8091:8091
+      - 8100-8105:8100-8105
+    command:
+      - middleManager
+    env_file:
+      - druid/druid.conf
+
+  router:
+    image: apache/druid:36.0.0
+    container_name: router
+    volumes:
+      - druid_router_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - 8888:8888
+    command:
+      - router
+    env_file:
+      - druid/druid.conf
