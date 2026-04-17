@@ -6,11 +6,11 @@ services:
 #    container_name: scrapper
 #    depends_on:
 #      - apache-druni
-  broker:
+  kafka:
     build:
-      context: broker
+      context: kafka
       dockerfile: Dockerfile
-    container_name: broker
+    container_name: kafka
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -28,5 +28,7 @@ services:
     image: apache/druid:36.0.0
     ports:
       - 8888:8888
+    env_file:
+      - druid/druid.conf
     
 
