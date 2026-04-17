@@ -1,0 +1,48 @@
+{
+  "type": "kafka",
+  "spec": {
+    "dataSchema": {
+      "dataSource": "trades",
+      "timestampSpec": {
+        "column": "timestamp",
+        "format": "millis"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "name",
+          "side",
+          "broker"
+        ]
+      },
+      "metricsSpec": [
+        { "type": "count", "name": "count" },
+        { "type": "doubleSum", "name": "volume_sum", "fieldName": "volume" },
+        { "type": "doubleLast", "name": "price_last", "fieldName": "price" },
+        { "type": "doubleMin", "name": "price_min", "fieldName": "price" },
+        { "type": "doubleMax", "name": "price_max", "fieldName": "price" }
+      ],
+      "granularitySpec": {
+        "type": "uniform",
+        "segmentGranularity": "HOUR",
+        "queryGranularity": "SECOND",
+        "rollup": false
+      }
+    },
+    "ioConfig": {
+      "topic": "trades",
+      "inputFormat": { "type": "json" },
+      "consumerProperties": {
+        "bootstrap.servers": "kafka:9092"
+      },
+      "taskCount": 1,
+      "replicas": 1,
+      "taskDuration": "PT1H",
+      "useEarliestOffset": true
+    },
+    "tuningConfig": {
+      "type": "kafka",
+      "maxRowsPerSegment": 5000000,
+      "maxRowsInMemory": 100000
+    }
+  }
+}
