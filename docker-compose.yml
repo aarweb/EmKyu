@@ -8,6 +8,7 @@ volumes:
   druid_metadata: {}
 
 services:
+  # Broker Kafka en modo KRaft (sin Zookeeper). Bus de eventos para trades y orderbook.
   kafka:
     build:
       context: kafka
@@ -30,6 +31,7 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
 
+  # Job efímero: espera a Kafka y crea los topics `trades` y `orderbook`.
   kafka-init:
     image: apache/kafka:latest
     container_name: kafka-init
@@ -46,6 +48,7 @@ services:
       "
     restart: "no"
 
+  # Base de datos de metadatos de Druid (segmentos, tasks, supervisors).
   postgres:
     image: postgres:16
     container_name: postgres
@@ -56,12 +59,14 @@ services:
       POSTGRES_USER: druid
       POSTGRES_DB: druid
 
+  # Coordinación interna del cluster Druid (descubrimiento y liderazgo).
   zookeeper:
     image: zookeeper:3.9
     container_name: zookeeper
     environment:
       ZOO_MY_ID: 1
 
+  # Druid Coordinator: asigna segmentos a los historicals y gestiona limpieza.
   coordinator:
     image: apache/druid:36.0.0
     container_name: coordinator
@@ -78,6 +83,7 @@ services:
     env_file:
       - druid/druid.conf
 
+  # Druid Broker: recibe las queries y las reparte entre historicals y middlemanagers.
   broker:
     image: apache/druid:36.0.0
     container_name: broker
@@ -94,6 +100,7 @@ services:
     env_file:
       - druid/druid.conf
 
+  # Druid Historical: sirve los segmentos publicados desde el almacenamiento profundo.
   historical:
     image: apache/druid:36.0.0
     container_name: historical
@@ -111,6 +118,7 @@ services:
     env_file:
       - druid/druid.conf
 
+  # Druid MiddleManager: ejecuta las tareas de ingesta (peons que consumen de Kafka).
   middlemanager:
     image: apache/druid:36.0.0
     container_name: middlemanager
@@ -129,6 +137,7 @@ services:
     env_file:
       - druid/druid.conf
 
+  # Druid Router: front HTTP y consola web; enruta peticiones a coordinator/broker.
   router:
     image: apache/druid:36.0.0
     container_name: router
@@ -145,6 +154,7 @@ services:
     env_file:
       - druid/druid.conf
 
+  # App custom: conecta a los WebSockets de Bybit, Binance y Kraken y produce a Kafka.
   scrapping:
     build:
       context: scrapping
@@ -161,6 +171,7 @@ services:
       KRAKEN_WS: wss://ws.kraken.com/v2
     restart: unless-stopped
 
+  # Job efímero: envía los *-supervisor.json al coordinator para arrancar la ingesta desde Kafka.
   druid-init:
     image: curlimages/curl:8.10.1
     container_name: druid-init
