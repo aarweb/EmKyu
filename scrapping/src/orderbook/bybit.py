@@ -34,10 +34,16 @@ class BybitOrderBook(BrokerClient):
 
     @override
     async def onListen(self):
-        data = json.loads(await self.client.recv())
-        if "data" in data:
-            mapped: TSOrderBook = BybitOrderBookMapper.mapResponse(data)
-            print(mapped)
+        try:
+            data = json.loads(await self.client.recv())
+            if "data" in data:
+                mapped: TSOrderBook = BybitOrderBookMapper.mapResponse(data)
+                await ScrapperProducer.sendOrderbook(mapped)
+        except websockets.exceptions.ConnectionClosed:
+            await self.connect()
+        except Exception as e:
+            await self.close()
+            print(f"Error processing Binance OrderBook data: {e}")
 
     @override
     async def close(self):

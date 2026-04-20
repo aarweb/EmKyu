@@ -1,13 +1,13 @@
 import asyncio
 
-# from trades.bybit import BybitTrade
+from trades.bybit import BybitTrade
 # from trades.kraken import KrakenTrade
 from trades.client import BrokerClient
 from trades.binance import BinanceTrade
 
 from orderbook.binance import BinanceOrderBook
 
-# from orderbook.bybit import BybitOrderBook
+from orderbook.bybit import BybitOrderBook
 # from orderbook.kraken import KrakenOrderBook
 from scrapper_queue.producer import ScrapperProducer
 
@@ -17,10 +17,10 @@ async def main():
     await ScrapperProducer.start()
 
     brokers: list[BrokerClient] = [
-        # BybitTrade.create(),
+        BybitTrade.create(),
         BinanceTrade.create(),
         # KrakenTrade.create(),
-        # BybitOrderBook.create(),
+        BybitOrderBook.create(),
         BinanceOrderBook.create(),
         # KrakenOrderBook.create(),
     ]
