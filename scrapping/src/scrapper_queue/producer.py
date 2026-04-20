@@ -24,7 +24,9 @@ class ScrapperProducer:
         global SCRAPPER_PRODUCER
         SCRAPPER_PRODUCER = AIOKafkaProducer(
             bootstrap_servers=KAFKA_URL,
-            value_serializer=lambda v: json.dumps(v.__dict__).encode("utf-8"),
+            value_serializer=lambda v: json.dumps(
+                v, default=lambda o: o.__dict__
+            ).encode("utf-8"),
         )
         await SCRAPPER_PRODUCER.start()
 
