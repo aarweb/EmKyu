@@ -6,6 +6,7 @@ volumes:
   druid_middle_var: {}
   druid_router_var: {}
   druid_metadata: {}
+  kafka_data: {}
 
 services:
   # Broker Kafka en modo KRaft (sin Zookeeper). Bus de eventos para trades y orderbook.
@@ -16,6 +17,8 @@ services:
     container_name: kafka
     ports:
       - 29092:29092
+    volumes:
+      - kafka_data:/tmp/kraft-combined-logs
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -40,7 +43,7 @@ services:
       timeout: 5s
       retries: 20
 
-  # Job efímero: espera a Kafka y crea los topics `trades` y `orderbook`.
+  # Trabajo esporádico: espera a Kafka y crea los topics `trades` y `orderbook`.
   kafka-init:
     image: apache/kafka:latest
     container_name: kafka-init
@@ -151,7 +154,7 @@ services:
     env_file:
       - druid/druid.conf
 
-  # Druid MiddleManager: ejecuta las tareas de ingesta (peons que consumen de Kafka).
+  # Druid MiddleManager: ejecuta las tareas de ingesta (peones que consumen de Kafka).
   middlemanager:
     image: apache/druid:36.0.0
     container_name: middlemanager
@@ -214,7 +217,7 @@ services:
       KRAKEN_WS: wss://ws.kraken.com/v2
     restart: unless-stopped
 
-  # Job efímero: envía los *-supervisor.json al coordinator para arrancar la ingesta desde Kafka.
+  # Trabajo esporádico: envía los *-supervisor.json al coordinator para arrancar la ingesta desde Kafka.
   druid-init:
     image: curlimages/curl:8.10.1
     container_name: druid-init
