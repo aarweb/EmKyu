@@ -3,6 +3,7 @@ from typing import override
 
 from websockets.asyncio.client import connect
 
+from scrapper_queue.producer import ScrapperProducer
 from trades.client import BrokerClient
 from env.kraken import KRAKEN_WS
 from orderbook.mapper.kraken import KrakenOrderBookMapper
@@ -36,7 +37,8 @@ class KrakenOrderBook(BrokerClient):
         data = json.loads(await self.client.recv())
         if data.get("channel") == "book" and "data" in data:
             mapped: TSOrderBook = KrakenOrderBookMapper.mapResponse(data)
-            print(mapped)
+            await ScrapperProducer.sendOrderbook(mapped)
+            # print(mapped)
 
     @override
     async def close(self):
