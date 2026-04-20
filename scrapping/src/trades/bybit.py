@@ -37,7 +37,7 @@ class BybitTrade(BrokerClient):
     async def onListen(self):
         data = json.loads(await self.client.recv())
         mapped: TSTrade = BybitDataMapper.mapResponse(data)
-        print(mapped)
+        await ScrapperProducer.sendTrade(mapped)
 
     @override
     async def close(self):
