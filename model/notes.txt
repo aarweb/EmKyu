@@ -1,0 +1,47 @@
+Lo más inteligente es utilizar la siguiente infraestructura.
+
+1. Generar snapshots en Druid (1 fila por minuto) por lo que para 1 día se generan 1440 filas.
+--TIME_FLOOR.
+
+-Cada hora pedimos a Druid el snapshot de la última hora, es decir, 60 filas.
+-Esas filas se procesan en una red GRU.
+-La red devuelve una predicción de la siguiente hora, es decir, 60 filas.
+
+LOS DATOS QUE NOS INTERESA GUARDAR SON:
+ORDERBOOK:
+-Visualizar Oferta y Demanda: Muestra el precio más alto que los compradores están dispuestos a pagar y el más bajo que los vendedores aceptan 
+-Identificar Soporte y Resistencia: Los niveles de precios con grandes órdenes acumuladas actúan como barreras psicológicas y técnicas 
+-Analizar la Liquidez: Ayuda a los traders a entender qué tan fácil es ejecutar una operación grande sin cambiar mucho el precio .
+-Detectar la "Intención" del Mercado: Permite ver la agresividad de compradores o vendedores y anticipar movimientos de precios 
+
+Estos datos son vitales para predecir el movimiento inmediato (la siguiente hora).
+-best_bid_price_last (el techo): El precio más alto que alguien está dispuesto a pagar.
+-best_ask_price_last (el suelo): El precio más bajo que alguien está dispuesto a vender.
+-best_bid_qty_last: La cantidad total que los compradores están dispuestos a comprar al precio del best_bid_price_last.
+-best_ask_qty_last: La cantidad total que los vendedores están dispuestos a vender al precio del best_ask_price_last.
+
+
+-mid_price (Calculado): (best_bid_price_last + best_ask_price_last) / 2. Es tu referencia base para evitar el ruido del spread.
+    --Es la VARIABLE OBJETIVO, elimina el ruido.
+
+-vobi (Volume Order Book Imbalance): (best_bid_qty_last - best_ask_qty_last) / (best_bid_qty_last + best_ask_qty_last).
+    --Por qué: Si este valor es cercano a 1, hay mucha más gente queriendo comprar que vender. Es el predictor número uno de subidas a corto plazo.
+    --Indica dirección. Si sube antes que el precio hay una oportunidad de compra.
+
+-spread_relative: (best_ask_price_last - best_bid_price_last) / mid_price.
+    --Por qué: Un spread que se ensancha indica que los "Market Makers" tienen miedo, lo que suele preceder a una alta volatilidad.
+    --Es la incertidumbre, al crecer las predicciones son menos estables.
+
+depth_range: (best_ask_price_max - best_bid_price_min).
+    --Por qué: Indica el rango de liquidez inmediata. Si el rango es pequeño, el precio está comprimido y pronto habrá una ruptura (breakout).
+
+
+TRADES:
+-volume_sum: El volumen total ejecutado en ese minuto.
+    --Por qué: Un movimiento de precio sin volumen es una señal falsa (ruido). Solo los movimientos con volumen alto son "válidos" para la red neuronal.
+
+-trade_count (tu campo count): Número de ejecuciones por minuto.
+    --Por qué: Mide la intensidad del mercado. Muchos trades pequeños suelen ser algoritmos; pocos trades grandes suelen ser "ballenas" operando.
+
+-buy_sell_ratio: Volumen de compras dividido por volumen de ventas (usando el campo side).
+    --Por qué: Si el precio sube pero el ratio es vendedor, estamos ante una absorción; el precio caerá pronto.
