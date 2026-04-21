@@ -1,11 +1,13 @@
 import json
 from typing import override
 
+import websockets
 from websockets.asyncio.client import connect
 
 from trades.mapper.bybit import BybitDataMapper
 from trades.mapper.model.time_series_cripto import TSTrade
 from env.bybit import BYBIT_WS
+from scrapper_queue.producer import ScrapperProducer
 
 from .client import BrokerClient
 
@@ -35,10 +37,17 @@ class BybitTrade(BrokerClient):
 
     @override
     async def onListen(self):
-        data = json.loads(await self.client.recv())
-        mapped: TSTrade = BybitDataMapper.mapResponse(data)
-        await ScrapperProducer.sendTrade(mapped)
+        try:
+            data = json.loads(await self.client.recv())
+            mapped: TSTrade = BybitDataMapper.mapResponse(data)
+            await ScrapperProducer.sendTrade(mapped)
+        except websockets.exceptions.ConnectionClosed:
+            await self.connect()
+        except Exception as e:
+            await self.close()
+            print(f"Error processing Bybit data: {e}")
 
     @override
     async def close(self):
-        await self.client.close()
+        if self.client:
+            await self.client.close()

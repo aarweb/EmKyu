@@ -31,7 +31,10 @@ class BinanceOrderBook(BrokerClient):
 
     @override
     async def connect(self):
-        self.client = await connect(self.url)
+        # Binance orderbook mapper espera formato combined-stream ({stream, data}),
+        # que solo se entrega en el endpoint /stream, no en /ws.
+        combined_url = self.url.rsplit("/ws", 1)[0] + "/stream"
+        self.client = await connect(combined_url)
         _ = await self.client.send(json.dumps(self.args))
         _ = await self.client.recv()
 

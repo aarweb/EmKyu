@@ -6,6 +6,7 @@ volumes:
   druid_middle_var: {}
   druid_router_var: {}
   druid_metadata: {}
+  kafka_data: {}
 
 services:
   # Broker Kafka en modo KRaft (sin Zookeeper). Bus de eventos para trades y orderbook.
@@ -16,6 +17,8 @@ services:
     container_name: kafka
     ports:
       - 29092:29092
+    volumes:
+      - kafka_data:/tmp/kraft-combined-logs
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -30,13 +33,23 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list >/dev/null 2>&1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
-  # Job efímero: espera a Kafka y crea los topics `trades` y `orderbook`.
+  # Trabajo esporádico: espera a Kafka y crea los topics `trades` y `orderbook`.
   kafka-init:
     image: apache/kafka:latest
     container_name: kafka-init
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     entrypoint: ["/bin/sh", "-c"]
     command: |
       "
@@ -45,6 +58,8 @@ services:
       done;
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic trades --partitions 3 --replication-factor 1;
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic orderbook --partitions 3 --replication-factor 1;
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic trades_fake --partitions 3 --replication-factor 1;
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic orderbook_fake --partitions 3 --replication-factor 1;
       "
     restart: "no"
 
@@ -58,6 +73,11 @@ services:
       POSTGRES_PASSWORD: MiauPassword
       POSTGRES_USER: druid
       POSTGRES_DB: druid
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U druid -d druid"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   # Coordinación interna del cluster Druid (descubrimiento y liderazgo).
   zookeeper:
@@ -65,6 +85,11 @@ services:
     container_name: zookeeper
     environment:
       ZOO_MY_ID: 1
+    healthcheck:
+      test: ["CMD-SHELL", "zkServer.sh status"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
 
   # Druid Coordinator: asigna segmentos a los historicals y gestiona limpieza.
   coordinator:
@@ -74,14 +99,21 @@ services:
       - druid_shared:/opt/shared
       - druid_coordinator_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     ports:
       - 8081:8081
     command:
       - coordinator
     env_file:
       - druid/druid.conf
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8081/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   # Druid Broker: recibe las queries y las reparte entre historicals y middlemanagers.
   broker:
@@ -90,9 +122,12 @@ services:
     volumes:
       - druid_broker_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
-      - coordinator
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
     ports:
       - 8082:8082
     command:
@@ -108,9 +143,12 @@ services:
       - druid_shared:/opt/shared
       - druid_historical_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
-      - coordinator
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
     ports:
       - 8083:8083
     command:
@@ -118,7 +156,7 @@ services:
     env_file:
       - druid/druid.conf
 
-  # Druid MiddleManager: ejecuta las tareas de ingesta (peons que consumen de Kafka).
+  # Druid MiddleManager: ejecuta las tareas de ingesta (peones que consumen de Kafka).
   middlemanager:
     image: apache/druid:36.0.0
     container_name: middlemanager
@@ -126,9 +164,14 @@ services:
       - druid_shared:/opt/shared
       - druid_middle_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
-      - coordinator
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - 8091:8091
       - 8100-8105:8100-8105
@@ -144,9 +187,12 @@ services:
     volumes:
       - druid_router_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
-      - coordinator
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      coordinator:
+        condition: service_healthy
     ports:
       - 8888:8888
     command:
@@ -161,8 +207,10 @@ services:
       dockerfile: Dockerfile
     container_name: scrapping
     depends_on:
-      - kafka-init
+      kafka-init:
+        condition: service_completed_successfully
     environment:
+      PYTHONUNBUFFERED: "1"
       KAFKA_URL: kafka:9092
       TRAIT_TOPIC: trades
       ORDERBOOK_TOPIC: orderbook
@@ -171,28 +219,28 @@ services:
       KRAKEN_WS: wss://ws.kraken.com/v2
     restart: unless-stopped
 
-  # Job efímero: envía los *-supervisor.json al coordinator para arrancar la ingesta desde Kafka.
+  # Trabajo esporádico: envía los *-supervisor.json al coordinator para arrancar la ingesta desde Kafka.
   druid-init:
     image: curlimages/curl:8.10.1
     container_name: druid-init
     depends_on:
-      - coordinator
-      - middlemanager
-      - kafka-init
+      coordinator:
+        condition: service_healthy
+      middlemanager:
+        condition: service_started
+      kafka-init:
+        condition: service_completed_successfully
     volumes:
       - ./druid:/supervisors:ro
     entrypoint: ["/bin/sh", "-c"]
-    command: |
-      "
-      until curl -sf http://coordinator:8081/status >/dev/null; do
-        echo 'Waiting for coordinator...'; sleep 3;
-      done;
-      for spec in /supervisors/*-supervisor.json; do
-        echo \"Submitting $$spec\";
-        curl -sS -X POST -H 'Content-Type: application/json' \
-          --data-binary @$$spec \
-          http://coordinator:8081/druid/indexer/v1/supervisor;
-        echo;
-      done;
-      "
+    command:
+      - |
+        until curl -sf http://coordinator:8081/status >/dev/null; do
+          echo 'Waiting for coordinator...'; sleep 3;
+        done
+        for spec in /supervisors/*-supervisor.json; do
+          echo "Submitting $$spec"
+          curl -sS -X POST -H 'Content-Type: application/json' --data-binary @$$spec http://coordinator:8081/druid/indexer/v1/supervisor
+          echo
+        done
     restart: "no"

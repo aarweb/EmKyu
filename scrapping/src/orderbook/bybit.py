@@ -1,8 +1,10 @@
 import json
 from typing import override
 
+import websockets
 from websockets.asyncio.client import connect
 
+from scrapper_queue.producer import ScrapperProducer
 from trades.client import BrokerClient
 from env.bybit import BYBIT_WS
 from orderbook.mapper.bybit import BybitOrderBookMapper
@@ -43,8 +45,9 @@ class BybitOrderBook(BrokerClient):
             await self.connect()
         except Exception as e:
             await self.close()
-            print(f"Error processing Binance OrderBook data: {e}")
+            print(f"Error processing Bybit OrderBook data: {e}")
 
     @override
     async def close(self):
-        await self.client.close()
+        if self.client:
+            await self.client.close()

@@ -1,0 +1,60 @@
+{
+  "type": "kafka",
+  "spec": {
+    "dataSchema": {
+      "dataSource": "orderbook_fake",
+      "timestampSpec": {
+        "column": "timestamp",
+        "format": "millis"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "symbol",
+          "broker"
+        ]
+      },
+      "metricsSpec": [
+        { "type": "count", "name": "count" },
+        { "type": "doubleLast", "name": "best_bid_price_last", "fieldName": "best_bid_price" },
+        { "type": "doubleLast", "name": "best_bid_qty_last",   "fieldName": "best_bid_qty" },
+        { "type": "doubleLast", "name": "best_ask_price_last", "fieldName": "best_ask_price" },
+        { "type": "doubleLast", "name": "best_ask_qty_last",   "fieldName": "best_ask_qty" },
+        { "type": "doubleMin",  "name": "best_bid_price_min",  "fieldName": "best_bid_price" },
+        { "type": "doubleMax",  "name": "best_ask_price_max",  "fieldName": "best_ask_price" }
+      ],
+      "granularitySpec": {
+        "type": "uniform",
+        "segmentGranularity": "HOUR",
+        "queryGranularity": "SECOND",
+        "rollup": false
+      }
+    },
+    "ioConfig": {
+      "topic": "orderbook_fake",
+      "inputFormat": {
+        "type": "json",
+        "flattenSpec": {
+          "useFieldDiscovery": true,
+          "fields": [
+            { "type": "jq", "name": "best_bid_price", "expr": ".bids[0].price" },
+            { "type": "jq", "name": "best_bid_qty",   "expr": ".bids[0].quantity" },
+            { "type": "jq", "name": "best_ask_price", "expr": ".asks[0].price" },
+            { "type": "jq", "name": "best_ask_qty",   "expr": ".asks[0].quantity" }
+          ]
+        }
+      },
+      "consumerProperties": {
+        "bootstrap.servers": "kafka:9092"
+      },
+      "taskCount": 1,
+      "replicas": 1,
+      "taskDuration": "PT1H",
+      "useEarliestOffset": true
+    },
+    "tuningConfig": {
+      "type": "kafka",
+      "maxRowsPerSegment": 5000000,
+      "maxRowsInMemory": 100000
+    }
+  }
+}
