@@ -219,6 +219,14 @@ services:
       KRAKEN_WS: wss://ws.kraken.com/v2
     restart: unless-stopped
 
+  socket-gateway:
+    build:
+      context: EmKyuSocketGateway
+      dockerfile: Dockerfile
+    container_name: socket-gateway
+    depends_on:
+      druid-init:
+        condition: service_completed_successfully
   # Trabajo esporádico: envía los *-supervisor.json al coordinator para arrancar la ingesta desde Kafka.
   druid-init:
     image: curlimages/curl:8.10.1

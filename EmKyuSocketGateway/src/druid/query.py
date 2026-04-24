@@ -1,24 +1,34 @@
+import datetime
 from typing import Any
 
 from pydruid.client import *
 from pydruid.client import PyDruid
-from pydruid.utils.aggregators import doublesum
-from pydruid.utils.filters import Dimension
-from pydruid.utils.postaggregator import Field
+
+from env import DRUID_URI
 
 
 class PyDruidClient:
-    _CLIENT = PyDruid("", "druid/v2")
+    _CLIENT = PyDruid(DRUID_URI, "druid/v2")
+
+    def getCurrentRealData(self) -> Any:
+        current = datetime.datetime.now()
+        return {
+            "trades": self._CLIENT.timeseries(
+                datasource="trades",
+                granularity="day",
+                intervals="2025-02-02/p4w",
+            ),
+            "oderbook": self._CLIENT.timeseries(
+                datasource="orderbook",
+                granularity="day",
+                intervals="2025-02-02/p4w",
+            ),
+        }
 
     def getCurrentSynthData(self) -> Any:
-        return self._CLIENT.timeseries(
-            datasource="twitterstream",
-            granularity="day",
-            intervals="2014-02-02/p4w",
-            aggregations={
-                "length": doublesum("tweet_length"),
-                "count": doublesum("count"),
-            },
-            post_aggregations={"avg_tweet_length": (Field("length") / Field("count"))},
-            filter=Dimension("first_hashtag") == "sochi2014",
-        )
+        return {"trades_fake": "", "orderbook_fake": ""}
+
+    def getCurrentData(self) -> Any:
+        realRegistry = self.getCurrentRealData()
+        synthRegistry = self.getCurrentSynthData()
+        return {"real": realRegistry, "fake": synthRegistry}
