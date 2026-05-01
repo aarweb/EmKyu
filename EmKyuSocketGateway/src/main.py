@@ -22,8 +22,12 @@ async def main():
     while True:
         ts = client.getCurrentData()
         app.emit("data-tick", {"data": ts})
+<<<<<<< Updated upstream
         await asyncio.sleep(5)
         
+=======
+        await asyncio.sleep(1) 
+>>>>>>> Stashed changes
 
 
 asyncio.run(main())

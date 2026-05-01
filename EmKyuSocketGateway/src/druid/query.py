@@ -26,7 +26,11 @@ class PyDruidClient:
         }
 
     def getCurrentSynthData(self) -> Any:
+<<<<<<< Updated upstream
         return {"trades_fake": "", "orderbook_fake": ""}
+=======
+        return {"records": self._CLIENT.timeseries()}
+>>>>>>> Stashed changes
 
     def getCurrentData(self) -> Any:
         realRegistry = self.getCurrentRealData()
