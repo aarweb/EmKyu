@@ -12,8 +12,8 @@ class BybitDataMapper:
         return TSTrade(
             timestamp=data["ts"],
             name=trade["s"],
-            price=trade["p"],
-            volume=trade["v"],
+            price=float(trade["p"]),
+            volume=float(trade["v"]),
             side=side,
             broker=Broker.BYBIT,
         )

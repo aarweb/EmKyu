@@ -12,12 +12,18 @@ SCRAPPER_PRODUCER: AIOKafkaProducer | None = None
 
 class ScrapperProducer:
     @staticmethod
+    def _producer() -> AIOKafkaProducer:
+        if SCRAPPER_PRODUCER is None:
+            raise RuntimeError("ScrapperProducer not started — call start() first")
+        return SCRAPPER_PRODUCER
+
+    @staticmethod
     async def sendTrade(trade: TSTrade):
-        await SCRAPPER_PRODUCER.send(TRAIT_TOPIC, trade)
+        await ScrapperProducer._producer().send(TRAIT_TOPIC, trade)
 
     @staticmethod
     async def sendOrderbook(orderbook: TSOrderBook):
-        await SCRAPPER_PRODUCER.send(ORDERBOOK_TOPIC, orderbook)
+        await ScrapperProducer._producer().send(ORDERBOOK_TOPIC, orderbook)
 
     @staticmethod
     async def start():
